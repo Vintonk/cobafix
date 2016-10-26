@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="UTF-8">
+  <title>Home Page</title>
+ </head>
+ <body>
+  <div id="connectionStatus"></div>
+  <p>Click on the button below to make an HTTP request.<p>
+  <button id="requestButton">Make an HTTP request - do it!</button>
+  <script>
+  if ('serviceWorker' in navigator) {
+  navigator.serviceWorker
+    .register('./service-worker.js')
+    .then(registration => navigator.serviceWorker.ready)
+    .then(registration => { // register sync
+      document.getElementById('requestButton').addEventListener('click', () => {
+        registration.sync.register('image-fetch').then(() => {
+            console.log('Sync registered');
+        });
+      });
+    });
+} else {
+  document.getElementById('requestButton').addEventListener('click', () => {
+    console.log('Fallback to fetch the image as usual');
+  });
+}
+
+function isOnline () {
+  var connectionStatus = document.getElementById('connectionStatus');
+
+  if (navigator.onLine){
+    connectionStatus.innerHTML = 'You are currently online!';
+  } else {
+    connectionStatus.innerHTML = 'You are currently offline. Any requests made will be queued and synced as soon as you are connected again.';
+  }
+}
+
+window.addEventListener('online', isOnline);
+window.addEventListener('offline', isOnline);
+isOnline();
+
+
+  </script>
+ </body>
+</html>
